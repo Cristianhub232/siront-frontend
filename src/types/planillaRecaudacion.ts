@@ -29,4 +29,13 @@ export interface PlanillaRecaudacionStats {
   promedio_monto: number;
   bancos_unicos: number;
   contribuyentes_unicos: number;
+}
+
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  totalRecords: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 } 

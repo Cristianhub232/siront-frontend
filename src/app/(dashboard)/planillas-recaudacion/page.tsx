@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { IconSearch, IconRefresh, IconFileText, IconCalendar, IconCurrencyDollar, IconBuilding, IconUsers } from '@tabler/icons-react';
-import { PlanillaRecaudacion, PlanillaRecaudacionFilters, PlanillaRecaudacionStats } from '@/types/planillaRecaudacion';
+import { PlanillaRecaudacion, PlanillaRecaudacionFilters, PlanillaRecaudacionStats, PaginationInfo } from '@/types/planillaRecaudacion';
 import { SkeletonTable } from '@/components/skeletons/tables/Table';
 
 export default function PlanillasRecaudacionPage() {
@@ -21,6 +21,14 @@ export default function PlanillasRecaudacionPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<PlanillaRecaudacionFilters>({});
+  const [pagination, setPagination] = useState<PaginationInfo>({
+    page: 1,
+    limit: 50,
+    totalRecords: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
 
   // Estados para los filtros
   const [filtroRif, setFiltroRif] = useState('');
@@ -34,7 +42,7 @@ export default function PlanillasRecaudacionPage() {
   const [filtroMontoMinimo, setFiltroMontoMinimo] = useState('');
   const [filtroMontoMaximo, setFiltroMontoMaximo] = useState('');
 
-  const fetchPlanillas = async (filterParams?: PlanillaRecaudacionFilters) => {
+  const fetchPlanillas = async (filterParams?: PlanillaRecaudacionFilters, pageNum: number = 1) => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
@@ -47,12 +55,17 @@ export default function PlanillasRecaudacionPage() {
         }
       });
 
+      // Agregar parámetros de paginación
+      params.append('page', pageNum.toString());
+      params.append('limit', pagination.limit.toString());
+
       const response = await fetch(`/api/planillas-recaudacion?${params.toString()}`);
       const result = await response.json();
 
       if (result.success) {
         setPlanillas(result.data);
         setStats(result.stats);
+        setPagination(result.pagination);
       } else {
         console.error('Error al obtener planillas:', result.error);
       }
@@ -82,7 +95,7 @@ export default function PlanillasRecaudacionPage() {
     if (filtroMontoMaximo) newFilters.monto_maximo = parseFloat(filtroMontoMaximo);
 
     setFilters(newFilters);
-    fetchPlanillas(newFilters);
+    fetchPlanillas(newFilters, 1); // Resetear a la primera página
   };
 
   const handleClearFilters = () => {
@@ -97,7 +110,7 @@ export default function PlanillasRecaudacionPage() {
     setFiltroMontoMinimo('');
     setFiltroMontoMaximo('');
     setFilters({});
-    fetchPlanillas({});
+    fetchPlanillas({}, 1); // Resetear a la primera página
   };
 
   const formatDate = (dateString: string | Date) => {
@@ -115,6 +128,15 @@ export default function PlanillasRecaudacionPage() {
       currency: 'VES',
       minimumFractionDigits: 2
     }).format(amount);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    fetchPlanillas(filters, newPage);
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    setPagination(prev => ({ ...prev, limit: newLimit }));
+    fetchPlanillas(filters, 1); // Resetear a la primera página con nuevo límite
   };
 
   return (
@@ -381,6 +403,83 @@ export default function PlanillasRecaudacionPage() {
               </div>
             )}
           </div>
+
+          {/* Controles de Paginación */}
+          {!isLoading && planillas.length > 0 && (
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-600">
+                  Mostrando {((pagination.page - 1) * pagination.limit) + 1} a {Math.min(pagination.page * pagination.limit, pagination.totalRecords)} de {pagination.totalRecords} registros
+                </span>
+                <select
+                  value={pagination.limit}
+                  onChange={(e) => handleLimitChange(parseInt(e.target.value))}
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                >
+                  <option value={25}>25 por página</option>
+                  <option value={50}>50 por página</option>
+                  <option value={100}>100 por página</option>
+                  <option value={200}>200 por página</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => handlePageChange(1)}
+                  disabled={!pagination.hasPrevPage}
+                  variant="outline"
+                  size="sm"
+                >
+                  Primera
+                </Button>
+                <Button
+                  onClick={() => handlePageChange(pagination.page - 1)}
+                  disabled={!pagination.hasPrevPage}
+                  variant="outline"
+                  size="sm"
+                >
+                  Anterior
+                </Button>
+                
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                    const pageNum = Math.max(1, Math.min(pagination.totalPages - 4, pagination.page - 2)) + i;
+                    if (pageNum <= pagination.totalPages) {
+                      return (
+                        <Button
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          variant={pageNum === pagination.page ? "default" : "outline"}
+                          size="sm"
+                          className="w-8 h-8 p-0"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+
+                <Button
+                  onClick={() => handlePageChange(pagination.page + 1)}
+                  disabled={!pagination.hasNextPage}
+                  variant="outline"
+                  size="sm"
+                >
+                  Siguiente
+                </Button>
+                <Button
+                  onClick={() => handlePageChange(pagination.totalPages)}
+                  disabled={!pagination.hasNextPage}
+                  variant="outline"
+                  size="sm"
+                >
+                  Última
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

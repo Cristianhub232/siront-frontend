@@ -6,6 +6,11 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     
+    // Obtener parámetros de paginación
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const offset = (page - 1) * limit;
+    
     // Obtener filtros de la URL
     const filters: PlanillaRecaudacionFilters = {
       rif_contribuyente: searchParams.get('rif_contribuyente') || undefined,
@@ -98,8 +103,9 @@ export async function GET(request: NextRequest) {
       query += ` AND ${conditions.join(' AND ')}`;
     }
 
-    // Ordenar por fecha de transacción descendente
-    query += ` ORDER BY pr.fecha_trans DESC`;
+    // Ordenar por fecha de transacción descendente y agregar paginación
+    query += ` ORDER BY pr.fecha_trans DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+    params.push(limit, offset);
 
     // Ejecutar la consulta
     const result = await xmlsSequelize.query(query, {
@@ -128,9 +134,93 @@ export async function GET(request: NextRequest) {
 
     const stats = statsResult[0][0] as any;
 
+    // Obtener el total de registros para la paginación
+    let countQuery = `
+      SELECT COUNT(*) as total
+      FROM datalake.planillas_recaudacion_2024 pr
+      INNER JOIN public.bancos b ON pr.cod_banco = b.id
+      INNER JOIN datalake.conceptos_2024 c ON pr.id = c.id_planilla
+      INNER JOIN public.codigos_presupuestarios cp ON c.cod_presupuestario = cp.id
+      WHERE pr.registro = true
+    `;
+
+    const countConditions: string[] = [];
+    const countParams: any[] = [];
+
+    // Aplicar los mismos filtros para el conteo
+    if (filters.rif_contribuyente) {
+      countConditions.push(`pr.rif_contribuyente ILIKE $${countParams.length + 1}`);
+      countParams.push(`%${filters.rif_contribuyente}%`);
+    }
+
+    if (filters.cod_seg_planilla) {
+      countConditions.push(`pr.cod_seg_planilla ILIKE $${countParams.length + 1}`);
+      countParams.push(`%${filters.cod_seg_planilla}%`);
+    }
+
+    if (filters.nombre_banco) {
+      countConditions.push(`b.nombre_banco ILIKE $${countParams.length + 1}`);
+      countParams.push(`%${filters.nombre_banco}%`);
+    }
+
+    if (filters.codigo_banco) {
+      countConditions.push(`b.codigo_banco ILIKE $${countParams.length + 1}`);
+      countParams.push(`%${filters.codigo_banco}%`);
+    }
+
+    if (filters.codigo_presupuestario) {
+      countConditions.push(`cp.codigo_presupuestario ILIKE $${countParams.length + 1}`);
+      countParams.push(`%${filters.codigo_presupuestario}%`);
+    }
+
+    if (filters.designacion_presupuestario) {
+      countConditions.push(`cp.designacion_presupuestario ILIKE $${countParams.length + 1}`);
+      countParams.push(`%${filters.designacion_presupuestario}%`);
+    }
+
+    if (filters.fecha_desde) {
+      countConditions.push(`pr.fecha_trans >= $${countParams.length + 1}`);
+      countParams.push(filters.fecha_desde);
+    }
+
+    if (filters.fecha_hasta) {
+      countConditions.push(`pr.fecha_trans <= $${countParams.length + 1}`);
+      countParams.push(filters.fecha_hasta);
+    }
+
+    if (filters.monto_minimo !== undefined) {
+      countConditions.push(`pr.monto_total_trans >= $${countParams.length + 1}`);
+      countParams.push(filters.monto_minimo);
+    }
+
+    if (filters.monto_maximo !== undefined) {
+      countConditions.push(`pr.monto_total_trans <= $${countParams.length + 1}`);
+      countParams.push(filters.monto_maximo);
+    }
+
+    if (countConditions.length > 0) {
+      countQuery += ` AND ${countConditions.join(' AND ')}`;
+    }
+
+    const countResult = await xmlsSequelize.query(countQuery, {
+      bind: countParams,
+      type: 'SELECT'
+    });
+
+    const totalRecords = parseInt((countResult[0][0] as any).total) || 0;
+    const totalPages = Math.ceil(totalRecords / limit);
+
     return NextResponse.json({
       success: true,
       data: result[0],
+      pagination: {
+        page,
+        limit,
+        totalRecords,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      },
       stats: {
         total_planillas: parseInt(stats.total_planillas) || 0,
         monto_total: parseFloat(stats.monto_total) || 0,

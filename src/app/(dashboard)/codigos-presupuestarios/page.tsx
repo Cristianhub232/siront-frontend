@@ -138,193 +138,201 @@ export default function CodigosPresupuestariosPage() {
 
   const stats = calculateStats();
 
+  // Calcular estadísticas
+  const totalCodigos = codigos.length;
+  const codigosConCodigo = codigos.filter(codigo => codigo.codigo_presupuestario && codigo.codigo_presupuestario.trim() !== '').length;
+  const codigosSinCodigo = totalCodigos - codigosConCodigo;
+  const porcentajeConCodigo = totalCodigos > 0 ? Math.round((codigosConCodigo / totalCodigos) * 100) : 0;
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Códigos Presupuestarios</h1>
-          <p className="text-muted-foreground">
-            Gestiona los códigos presupuestarios del sistema
-          </p>
-        </div>
-        <Button onClick={() => setOpenAdd(true)}>
-          <IconPlus className="h-4 w-4 mr-2" />
-          Agregar Código
-        </Button>
+    <div className="p-6">
+      {/* Dashboard de Estadísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-600">Total Códigos</p>
+                <p className="text-2xl font-bold text-blue-900">{totalCodigos}</p>
+              </div>
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-600">Con Código</p>
+                <p className="text-2xl font-bold text-green-900">{codigosConCodigo}</p>
+                <p className="text-xs text-green-600">{porcentajeConCodigo}% del total</p>
+              </div>
+              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-yellow-50 border-yellow-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-yellow-600">Sin Código</p>
+                <p className="text-2xl font-bold text-yellow-900">{codigosSinCodigo}</p>
+                <p className="text-xs text-yellow-600">{totalCodigos > 0 ? Math.round((codigosSinCodigo / totalCodigos) * 100) : 0}% del total</p>
+              </div>
+              <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-purple-50 border-purple-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-purple-600">Última Actualización</p>
+                <p className="text-lg font-bold text-purple-900">
+                  {codigos.length > 0 ? formatDate(codigos[0]?.updatedAt) : 'N/A'}
+                </p>
+              </div>
+              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardContent className="text-sm font-medium">Total Códigos</CardContent>
-            <IconCalculator className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">
-              Códigos registrados
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardContent className="text-sm font-medium">Completitud</CardContent>
-            <IconCalculator className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.porcentaje_completitud}%</div>
-            <p className="text-xs text-muted-foreground">
-              Datos completos
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardContent className="text-sm font-medium">Última Actualización</CardContent>
-            <IconCalculator className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {codigos.length > 0 ? formatDate(codigos[0].updatedAt) : "-"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Registro más reciente
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardContent className="text-sm font-medium">Estado</CardContent>
-            <IconCalculator className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <Badge variant="secondary">Activo</Badge>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Sistema funcionando
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
       <Card>
-        <CardHeader>
-          <h3 className="text-lg font-semibold">Filtros de Búsqueda</h3>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <h1 className="text-xl font-bold text-blue-900">Gestión de Códigos Presupuestarios</h1>
+          <Button onClick={() => setOpenAdd(true)}>
+            Agregar Código
+          </Button>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="filtro-codigo">Código Presupuestario</Label>
-              <Input
-                id="filtro-codigo"
-                placeholder="Buscar por código..."
-                value={filtroCodigo}
-                onChange={(e) => setFiltroCodigo(e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="filtro-designacion">Designación</Label>
-              <Input
-                id="filtro-designacion"
-                placeholder="Buscar por designación..."
-                value={filtroDesignacion}
-                onChange={(e) => setFiltroDesignacion(e.target.value)}
-              />
-            </div>
-            
-            <div className="flex items-end gap-2">
-              <Button onClick={aplicarFiltros} className="flex-1">
-                <IconSearch className="h-4 w-4 mr-2" />
-                Buscar
-              </Button>
-              <Button variant="outline" onClick={limpiarFiltros}>
-                <IconRefresh className="h-4 w-4" />
-              </Button>
+          {/* Filtros de búsqueda */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 className="text-lg font-semibold mb-4">Filtros de Búsqueda</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="filtro-codigo">Buscar por Código</Label>
+                <Input
+                  id="filtro-codigo"
+                  value={filtroCodigo}
+                  onChange={(e) => setFiltroCodigo(e.target.value)}
+                  placeholder="Código presupuestario..."
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="filtro-designacion">Buscar por Designación</Label>
+                <Input
+                  id="filtro-designacion"
+                  value={filtroDesignacion}
+                  onChange={(e) => setFiltroDesignacion(e.target.value)}
+                  placeholder="Designación presupuestaria..."
+                />
+              </div>
+              
+              <div className="flex items-end gap-2">
+                <Button onClick={aplicarFiltros} className="flex-1">
+                  <IconSearch className="h-4 w-4 mr-2" />
+                  Buscar
+                </Button>
+                <Button variant="outline" onClick={limpiarFiltros}>
+                  <IconRefresh className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Table */}
-      <Card>
-        <CardHeader>
-          <h3 className="text-lg font-semibold">Lista de Códigos Presupuestarios</h3>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <SkeletonTable />
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Código Presupuestario</TableCell>
-                  <TableCell>Designación Presupuestaria</TableCell>
-                  <TableCell>Fecha Creación</TableCell>
-                  <TableCell>Fecha Actualización</TableCell>
-                  <TableCell className="text-right">Acciones</TableCell>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {codigos.length === 0 ? (
+          {/* Tabla de códigos presupuestarios */}
+          <div className="overflow-x-auto">
+            {isLoading ? (
+              <SkeletonTable />
+            ) : (
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground">
-                      No se encontraron códigos presupuestarios
-                    </TableCell>
+                    <TableCell className="font-semibold">ID</TableCell>
+                    <TableCell className="font-semibold">Código</TableCell>
+                    <TableCell className="font-semibold">Designación</TableCell>
+                    <TableCell className="font-semibold">Fecha Creación</TableCell>
+                    <TableCell className="font-semibold">Fecha Actualización</TableCell>
+                    <TableCell className="font-semibold text-right">Acciones</TableCell>
                   </TableRow>
-                ) : (
-                  codigos.map((codigo) => (
-                    <TableRow key={codigo.id}>
-                      <TableCell>{codigo.id}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{codigo.codigo_presupuestario}</Badge>
-                      </TableCell>
-                      <TableCell className="max-w-md truncate">
-                        {codigo.designacion_presupuestario}
-                      </TableCell>
-                      <TableCell>{formatDate(codigo.createdAt)}</TableCell>
-                      <TableCell>{formatDate(codigo.updatedAt)}</TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <IconDots className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setEditCodigo(codigo);
-                                setOpenEdit(true);
-                              }}
-                            >
-                              <IconEdit className="h-4 w-4 mr-2" />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => confirmDelete(codigo.id)}
-                              className="text-red-600"
-                            >
-                              <IconTrash className="h-4 w-4 mr-2" />
-                              Eliminar
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                </TableHeader>
+                <TableBody>
+                  {codigos.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                        No se encontraron códigos presupuestarios
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          )}
+                  ) : (
+                    codigos.map((codigo) => (
+                      <TableRow key={codigo.id} className="hover:bg-gray-50">
+                        <TableCell className="font-medium">{codigo.id}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                            {codigo.codigo_presupuestario}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="max-w-md">
+                          <div className="truncate" title={codigo.designacion_presupuestario}>
+                            {codigo.designacion_presupuestario}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm text-gray-600">{formatDate(codigo.createdAt)}</TableCell>
+                        <TableCell className="text-sm text-gray-600">{formatDate(codigo.updatedAt)}</TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <IconDots className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setEditCodigo(codigo);
+                                  setOpenEdit(true);
+                                }}
+                              >
+                                <IconEdit className="h-4 w-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => confirmDelete(codigo.id)}
+                                className="text-red-600"
+                              >
+                                <IconTrash className="h-4 w-4 mr-2" />
+                                Eliminar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            )}
+          </div>
         </CardContent>
       </Card>
 

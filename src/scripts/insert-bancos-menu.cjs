@@ -23,7 +23,7 @@ async function insertBancosMenu() {
     const bancosMenu = {
       key: 'consulta-bancos',
       label: 'Consulta de Bancos',
-      icon: 'Building2',
+      icon: 'IconBuilding',
       route: '/consulta-bancos',
       parentId: null,
       section: 'main',
@@ -33,12 +33,25 @@ async function insertBancosMenu() {
 
     console.log('📝 Insertando menú de bancos...');
     
-    const [menu, created] = await sequelize.models.Menu.findOrCreate({
-      where: { key: bancosMenu.key },
-      defaults: bancosMenu
+    // Generar UUID
+    const { v4: uuidv4 } = require('uuid');
+    const menuId = uuidv4();
+    
+    // Insertar directamente con SQL
+    const insertQuery = `
+      INSERT INTO public.menus (id, key, label, icon, route, parent_id, section, status, metabase_dashboard_id)
+      VALUES ($1, 'consulta-bancos', 'Consulta de Bancos', 'IconBuilding', '/consulta-bancos', NULL, 'main', true, NULL)
+      ON CONFLICT (key) DO NOTHING
+      RETURNING id, key, label, route;
+    `;
+    
+    const result = await sequelize.query(insertQuery, { 
+      type: Sequelize.QueryTypes.INSERT,
+      bind: [menuId]
     });
-
-    if (created) {
+    
+    if (result && result[0] && result[0].length > 0) {
+      const menu = result[0][0];
       console.log('✅ Menú de bancos creado exitosamente');
       console.log('📋 Detalles del menú:');
       console.log(`   - ID: ${menu.id}`);

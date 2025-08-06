@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, RefreshCw, Building2 } from '@tabler/icons-react';
+import { IconSearch, IconPlus, IconRefresh, IconBuilding } from '@tabler/icons-react';
 import AddBancoModal from '@/components/AddBancoModal';
 import EditBancoModal from '@/components/EditBancoModal';
 import ConfirmDialog from '@/components/ConfirmDialog';
@@ -159,11 +159,11 @@ export default function ConsultaBancosPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <Building2 className="h-8 w-8 text-blue-600" />
+          <IconBuilding className="h-8 w-8 text-blue-600" />
           <h1 className="text-3xl font-bold text-gray-900">Consulta de Bancos</h1>
         </div>
         <Button onClick={() => setShowAddModal(true)} className="flex items-center space-x-2">
-          <Plus className="h-4 w-4" />
+          <IconPlus className="h-4 w-4" />
           <span>Agregar Banco</span>
         </Button>
       </div>
@@ -173,7 +173,7 @@ export default function ConsultaBancosPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Bancos</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <IconBuilding className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -249,14 +249,14 @@ export default function ConsultaBancosPage() {
           </div>
           <div className="flex space-x-2 mt-4">
             <Button onClick={handleSearch} className="flex items-center space-x-2">
-              <Search className="h-4 w-4" />
+              <IconSearch className="h-4 w-4" />
               <span>Buscar</span>
             </Button>
             <Button variant="outline" onClick={handleClearFilters}>
               Limpiar Filtros
             </Button>
             <Button variant="outline" onClick={loadBancos} className="flex items-center space-x-2">
-              <RefreshCw className="h-4 w-4" />
+              <IconRefresh className="h-4 w-4" />
               <span>Actualizar</span>
             </Button>
           </div>
@@ -271,7 +271,7 @@ export default function ConsultaBancosPage() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <RefreshCw className="h-6 w-6 animate-spin" />
+              <IconRefresh className="h-6 w-6 animate-spin" />
               <span className="ml-2">Cargando bancos...</span>
             </div>
           ) : (

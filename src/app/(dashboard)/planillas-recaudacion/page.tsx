@@ -23,7 +23,7 @@ export default function PlanillasRecaudacionPage() {
   const [filters, setFilters] = useState<PlanillaRecaudacionFilters>({});
   const [pagination, setPagination] = useState<PaginationInfo>({
     page: 1,
-    limit: 50,
+    limit: 1000,
     totalRecords: 0,
     totalPages: 0,
     hasNextPage: false,
@@ -416,10 +416,10 @@ export default function PlanillasRecaudacionPage() {
                   onChange={(e) => handleLimitChange(parseInt(e.target.value))}
                   className="px-3 py-1 border border-gray-300 rounded-md text-sm"
                 >
-                  <option value={25}>25 por página</option>
-                  <option value={50}>50 por página</option>
-                  <option value={100}>100 por página</option>
-                  <option value={200}>200 por página</option>
+                  <option value={500}>500 por página</option>
+                  <option value={1000}>1000 por página</option>
+                  <option value={2000}>2000 por página</option>
+                  <option value={5000}>5000 por página</option>
                 </select>
               </div>
 

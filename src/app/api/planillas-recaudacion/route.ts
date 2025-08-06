@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     
     // Obtener parámetros de paginación
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const limit = parseInt(searchParams.get('limit') || '1000');
     const offset = (page - 1) * limit;
     
     // Obtener filtros de la URL

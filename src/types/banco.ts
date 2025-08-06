@@ -1,36 +1,27 @@
 export interface Banco {
   id: number;
-  codigo?: string;
-  nombre: string;
-  descripcion?: string;
-  tipo?: string;
-  fecha_creacion?: Date;
-  fecha_actualizacion?: Date;
+  codigo_banco: string;
+  nombre_banco: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CreateBancoRequest {
-  codigo?: string;
-  nombre: string;
-  descripcion?: string;
-  tipo?: string;
+  codigo_banco: string;
+  nombre_banco: string;
 }
 
 export interface UpdateBancoRequest {
-  codigo?: string;
-  nombre?: string;
-  descripcion?: string;
-  tipo?: string;
+  codigo_banco?: string;
+  nombre_banco?: string;
 }
 
 export interface BancoFilters {
-  nombre?: string;
-  codigo?: string;
-  tipo?: string;
+  nombre_banco?: string;
+  codigo_banco?: string;
 }
 
 export interface BancoStats {
   total: number;
-  con_descripcion: number;
-  sin_descripcion: number;
   porcentaje_completitud: number;
 } 

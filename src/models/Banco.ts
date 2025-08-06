@@ -10,41 +10,23 @@ const Banco = xmlsSequelize.define(
       autoIncrement: true,
       field: "id"
     },
-    codigo: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      field: "codigo"
-    },
-    nombre: {
+    codigo_banco: {
       type: DataTypes.STRING,
       allowNull: false,
-      field: "nombre"
+      field: "codigo_banco"
     },
-    descripcion: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      field: "descripcion"
-    },
-    tipo: {
+    nombre_banco: {
       type: DataTypes.STRING,
-      allowNull: true,
-      field: "tipo"
-    },
-    fecha_creacion: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      field: "fecha_creacion"
-    },
-    fecha_actualizacion: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      field: "fecha_actualizacion"
+      allowNull: false,
+      field: "nombre_banco"
     }
   },
   {
     schema: "public",
     tableName: "bancos",
-    timestamps: false,
+    timestamps: true,
+    createdAt: "createdAt",
+    updatedAt: "updatedAt"
   }
 );
 

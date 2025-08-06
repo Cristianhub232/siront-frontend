@@ -9,27 +9,23 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const nombre = searchParams.get('nombre');
     const codigo = searchParams.get('codigo');
-    const tipo = searchParams.get('tipo');
 
     // Construir filtros
     const whereClause: any = {};
     if (nombre) {
-      whereClause.nombre = {
+      whereClause.nombre_banco = {
         [Op.iLike]: `%${nombre}%`
       };
     }
     if (codigo) {
-      whereClause.codigo = {
+      whereClause.codigo_banco = {
         [Op.iLike]: `%${codigo}%`
       };
-    }
-    if (tipo) {
-      whereClause.tipo = tipo;
     }
 
     const bancos = await Banco.findAll({
       where: whereClause,
-      order: [['nombre', 'ASC']],
+      order: [['nombre_banco', 'ASC']],
     });
 
     return NextResponse.json(bancos);
@@ -48,9 +44,16 @@ export async function POST(request: NextRequest) {
     const body: CreateBancoRequest = await request.json();
 
     // Validaciones básicas
-    if (!body.nombre || body.nombre.trim() === '') {
+    if (!body.nombre_banco || body.nombre_banco.trim() === '') {
       return NextResponse.json(
         { error: 'El nombre del banco es requerido' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.codigo_banco || body.codigo_banco.trim() === '') {
+      return NextResponse.json(
+        { error: 'El código del banco es requerido' },
         { status: 400 }
       );
     }
@@ -58,7 +61,7 @@ export async function POST(request: NextRequest) {
     // Verificar si ya existe un banco con el mismo nombre
     const bancoExistente = await Banco.findOne({
       where: {
-        nombre: body.nombre.trim()
+        nombre_banco: body.nombre_banco.trim()
       }
     });
 
@@ -71,12 +74,8 @@ export async function POST(request: NextRequest) {
 
     // Crear el banco
     const nuevoBanco = await Banco.create({
-      codigo: body.codigo?.trim(),
-      nombre: body.nombre.trim(),
-      descripcion: body.descripcion?.trim(),
-      tipo: body.tipo?.trim(),
-      fecha_creacion: new Date(),
-      fecha_actualizacion: new Date()
+      codigo_banco: body.codigo_banco.trim(),
+      nombre_banco: body.nombre_banco.trim()
     });
 
     return NextResponse.json(nuevoBanco, { status: 201 });

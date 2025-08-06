@@ -65,10 +65,10 @@ export async function PUT(
     }
 
     // Verificar si el nuevo nombre ya existe en otro banco
-    if (body.nombre && body.nombre.trim() !== (banco as any).nombre) {
+    if (body.nombre_banco && body.nombre_banco.trim() !== (banco as any).nombre_banco) {
       const bancoExistente = await Banco.findOne({
         where: {
-          nombre: body.nombre.trim(),
+          nombre_banco: body.nombre_banco.trim(),
           id: { [Op.ne]: id }
         }
       });
@@ -82,13 +82,11 @@ export async function PUT(
     }
 
     // Actualizar el banco
-    await banco.update({
-      codigo: body.codigo?.trim(),
-      nombre: body.nombre?.trim(),
-      descripcion: body.descripcion?.trim(),
-      tipo: body.tipo?.trim(),
-      fecha_actualizacion: new Date()
-    });
+    const updateData: any = {};
+    if (body.codigo_banco) updateData.codigo_banco = body.codigo_banco.trim();
+    if (body.nombre_banco) updateData.nombre_banco = body.nombre_banco.trim();
+    
+    await banco.update(updateData);
 
     return NextResponse.json(banco);
   } catch (error) {

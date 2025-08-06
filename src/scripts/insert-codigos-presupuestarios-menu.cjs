@@ -26,7 +26,7 @@ async function insertCodigosPresupuestariosMenu() {
         '${menuId}',
         'codigos-presupuestarios',
         'Códigos Presupuestarios',
-        'IconBuilding',
+        'IconFileDescription',
         '/codigos-presupuestarios',
         NULL,
         4,
@@ -98,7 +98,7 @@ async function insertCodigosPresupuestariosMenu() {
 
     console.log('\n🎉 Menú de Códigos Presupuestarios configurado exitosamente!');
     console.log('📍 Ruta: /codigos-presupuestarios');
-    console.log('🔧 Icono: IconBuilding');
+    console.log('🔧 Icono: IconFileDescription');
     console.log('📊 Sección: main');
     console.log('📋 Orden: 4');
 

@@ -6,10 +6,11 @@ import { UpdateBancoRequest } from '@/types/banco';
 // GET /api/bancos/[id] - Obtener banco por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     
     if (isNaN(id)) {
       return NextResponse.json(
@@ -40,10 +41,11 @@ export async function GET(
 // PUT /api/bancos/[id] - Actualizar banco
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     const body: UpdateBancoRequest = await request.json();
     
     if (isNaN(id)) {
@@ -101,10 +103,11 @@ export async function PUT(
 // DELETE /api/bancos/[id] - Eliminar banco
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     
     if (isNaN(id)) {
       return NextResponse.json(

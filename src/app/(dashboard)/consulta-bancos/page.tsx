@@ -374,13 +374,15 @@ export default function ConsultaBancosPage() {
 
       <ConfirmDialog
         open={showDeleteDialog}
-        onClose={() => {
-          setShowDeleteDialog(false);
-          setSelectedBanco(null);
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowDeleteDialog(false);
+            setSelectedBanco(null);
+          }
         }}
         onConfirm={handleDeleteBanco}
         title="Eliminar Banco"
-        message={`¿Estás seguro de que quieres eliminar el banco "${selectedBanco?.nombre}"? Esta acción no se puede deshacer.`}
+        description={`¿Estás seguro de que quieres eliminar el banco "${selectedBanco?.nombre}"? Esta acción no se puede deshacer.`}
       />
     </div>
   );

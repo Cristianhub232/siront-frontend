@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         cp.codigo_presupuestario,
         cp.designacion_presupuestario
       FROM datalake.planillas_recaudacion_2024 pr
-      INNER JOIN public.bancos b ON pr.cod_banco = b.codigo_banco
+      INNER JOIN public.bancos b ON pr.cod_banco = b.id
       INNER JOIN datalake.conceptos_2024 c ON pr.id = c.id_planilla
       INNER JOIN public.codigos_presupuestarios cp ON c.cod_presupuestario = cp.id
       WHERE pr.registro = true
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
         COUNT(DISTINCT b.codigo_banco) as bancos_unicos,
         COUNT(DISTINCT pr.rif_contribuyente) as contribuyentes_unicos
       FROM datalake.planillas_recaudacion_2024 pr
-      INNER JOIN public.bancos b ON pr.cod_banco = b.codigo_banco
+      INNER JOIN public.bancos b ON pr.cod_banco = b.id
       INNER JOIN datalake.conceptos_2024 c ON pr.id = c.id_planilla
       INNER JOIN public.codigos_presupuestarios cp ON c.cod_presupuestario = cp.id
       WHERE pr.registro = true

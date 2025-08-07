@@ -9,7 +9,13 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "sync-db": "node --loader ts-node/esm src/scripts/sync.ts"
+    "sync-db": "node --loader ts-node/esm src/scripts/sync.ts",
+    "create-mv": "node src/scripts/create-materialized-view.js",
+    "check-tables": "node src/scripts/check-tables.js",
+    "check-xmls-tables": "node src/scripts/check-xmls-tables.js",
+    "test-mv": "node src/scripts/test-materialized-view.js",
+    "refresh-mv": "node src/scripts/refresh-materialized-view.js",
+    "test-api": "node src/scripts/test-api-query.js"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",

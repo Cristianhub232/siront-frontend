@@ -1,52 +1,54 @@
 // models/index.ts
-import Menu from './Menu';
-import Role from './Role';
 import User from './User';
+import Role from './Role';
+import Menu from './Menu';
 import RoleMenuPermission from './RoleMenuPermission';
-import EmpresaPetrolera from './EmpresaPetrolera';
+import Banco from './Banco';
 import Forma from './Forma';
-
-// 🔗 Asociaciones centralizadas
-
-// Menús y permisos
-Menu.hasMany(RoleMenuPermission, {
-  foreignKey: 'menu_id',
-  as: 'permissions',
-});
-RoleMenuPermission.belongsTo(Menu, {
-  foreignKey: 'menu_id',
-  as: 'menu',
-});
-RoleMenuPermission.belongsTo(Role, {
-  foreignKey: 'role_id',
-  as: 'role',
-});
-
-// Roles y usuarios
-Role.hasMany(User, {
-  foreignKey: 'role_id',
-  as: 'users',
-});
-User.belongsTo(Role, {
-  foreignKey: 'role_id',
-  as: 'role',
-});
-
-Menu.hasMany(Menu, {
-  foreignKey: 'parentId',
-  as: 'children',
-});
-
-Menu.belongsTo(Menu, {
-  foreignKey: 'parentId',
-  as: 'parent',
-});
+import EmpresaPetrolera from './EmpresaPetrolera';
+import CodigoPresupuestario from './CodigoPresupuestario';
+import Concepto2024 from './Concepto2024';
+import PlanillaRecaudacion2024 from './PlanillaRecaudacion2024';
+import FormaNoValidada from './FormaNoValidada';
+import PlanillaSinConcepto from './PlanillaSinConcepto';
 
 export {
-  Menu,
-  Role,
   User,
+  Role,
+  Menu,
   RoleMenuPermission,
-  EmpresaPetrolera,
+  Banco,
   Forma,
+  EmpresaPetrolera,
+  CodigoPresupuestario,
+  Concepto2024,
+  PlanillaRecaudacion2024,
+  FormaNoValidada,
+  PlanillaSinConcepto
 };
+
+// Asociaciones existentes
+User.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
+Role.hasMany(User, { foreignKey: 'role_id', as: 'users' });
+
+Role.belongsToMany(Menu, { through: RoleMenuPermission, foreignKey: 'role_id', as: 'menus' });
+Menu.belongsToMany(Role, { through: RoleMenuPermission, foreignKey: 'menu_id', as: 'roles' });
+
+// Asociaciones para Reportes de Cierre
+PlanillaRecaudacion2024.hasMany(Concepto2024, {
+  foreignKey: 'id_planilla',
+  as: 'Conceptos2024',
+});
+Concepto2024.belongsTo(PlanillaRecaudacion2024, {
+  foreignKey: 'id_planilla',
+  as: 'PlanillaRecaudacion2024',
+});
+
+CodigoPresupuestario.hasMany(Concepto2024, {
+  foreignKey: 'cod_presupuestario',
+  as: 'Conceptos2024',
+});
+Concepto2024.belongsTo(CodigoPresupuestario, {
+  foreignKey: 'cod_presupuestario',
+  as: 'CodigoPresupuestario',
+});

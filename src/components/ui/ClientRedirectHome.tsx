@@ -3,13 +3,20 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useApp } from '@/context/AppContext';
 import type { MenuNodeRoot, MenuNodeChild } from '@/types/user';
 
 export default function ClientRedirectHome() {
     const { menus, user } = useUserProfile();
+    const { isInitialized } = useApp();
     const router = useRouter();
 
     useEffect(() => {
+        // Solo proceder si la aplicación ya está inicializada (splash screen completado)
+        if (!isInitialized) {
+            return;
+        }
+
         // Si no hay usuario autenticado, redirigir al login
         if (!user) {
             router.replace('/login');
@@ -39,7 +46,7 @@ export default function ClientRedirectHome() {
             // Si no hay menús, redirigir al login
             router.replace('/login');
         }
-    }, [menus, user, router]);
+    }, [menus, user, router, isInitialized]);
 
     return null;
 }

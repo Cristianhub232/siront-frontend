@@ -1,5 +1,5 @@
-import ClientRedirectHome from '@/components/ui/ClientRedirectHome';
+import ClientHome from '@/components/ClientHome';
 
 export default function Home() {
-  return <ClientRedirectHome />;
+  return <ClientHome />;
 }

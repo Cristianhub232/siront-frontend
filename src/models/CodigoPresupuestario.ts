@@ -11,12 +11,12 @@ const CodigoPresupuestario = xmlsSequelize.define(
       field: "id"
     },
     codigo_presupuestario: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING,
       allowNull: false,
       field: "codigo_presupuestario"
     },
     designacion_presupuestario: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING,
       allowNull: false,
       field: "designacion_presupuestario"
     }
@@ -25,8 +25,8 @@ const CodigoPresupuestario = xmlsSequelize.define(
     schema: "public",
     tableName: "codigos_presupuestarios",
     timestamps: true,
-    createdAt: "createdAt",
-    updatedAt: "updatedAt"
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   }
 );
 

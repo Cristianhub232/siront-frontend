@@ -45,9 +45,9 @@ export async function middleware(request: NextRequest) {
 
   // ✅ Proteger páginas del frontend (excepto login y públicas)
   if (!pathname.startsWith('/api')) {
-    // Para la página principal, siempre redirigir al login
-    if (pathname === '/') {
-      return NextResponse.redirect(new URL('/login', request.url));
+    // Permitir páginas de prueba y debug
+    if (pathname === '/' || pathname === '/test-splash' || pathname === '/debug') {
+      return NextResponse.next();
     }
     
     if (!token) {

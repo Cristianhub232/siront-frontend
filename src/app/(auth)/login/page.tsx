@@ -27,7 +27,7 @@ const handleLogin = async (event: React.FormEvent) => {
     <div className="min-h-screen bg-gradient-to-br from-[#cbd3dc] to-[#f6f8fb] flex items-center justify-center">
       <div className="bg-white/80 backdrop-blur-lg shadow-xl rounded-lg p-8 w-full max-w-md">
         <div className="flex flex-col items-center">
-          <img src="/logo-ont.webp" alt="Logo ONT" className="h-32 w-auto mb-4" style={{ minWidth: '300px' }} />
+          <img src="/Logo Actual ONT.png" alt="Logo ONT" className="h-40 w-auto mb-4" style={{ minWidth: '300px' }} />
           <h1 className="text-lg text-center text-gray-700 mb-6">
             SIRONT - Sistema de Reportes ONT
           </h1>

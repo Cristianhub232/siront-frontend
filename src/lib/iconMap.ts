@@ -12,7 +12,11 @@ import {
   IconUserSearch,
   IconListNumbers,
   IconBuilding,
-  IconClipboardList
+  IconClipboardList,
+  IconFileReport,
+  IconReportMoney,
+  IconAlertTriangle,
+  IconLink
 } from "@tabler/icons-react";
 
 export const ICON_MAP: Record<string, React.ElementType> = {
@@ -28,5 +32,9 @@ export const ICON_MAP: Record<string, React.ElementType> = {
   IconUserSearch,
   IconListNumbers,
   IconBuilding,
-  IconClipboardList
+  IconClipboardList,
+  IconFileReport,
+  IconReportMoney,
+  IconAlertTriangle,
+  IconLink
 };

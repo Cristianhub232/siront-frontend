@@ -18,7 +18,12 @@ export async function GET(request: NextRequest) {
         (SELECT SUM(monto_total_trans) FROM datalake.planillas_recaudacion_2024 WHERE registro = true) as total_monto_validadas
     `);
 
-    const statsData = stats[0];
+    const statsData = stats[0] as {
+      total_formas_no_validadas: number;
+      total_monto_no_validadas: number;
+      total_formas_validadas: number;
+      total_monto_validadas: number;
+    };
     
     // Calcular porcentajes
     const totalFormas = statsData.total_formas_no_validadas + statsData.total_formas_validadas;
@@ -61,7 +66,7 @@ export async function GET(request: NextRequest) {
       FROM datalake.formas_no_validadas_mv
     `);
 
-    const totalRecords = totalCount[0].total;
+    const totalRecords = (totalCount[0] as { total: number }).total;
     const totalPages = Math.ceil(totalRecords / limit);
 
     return NextResponse.json({

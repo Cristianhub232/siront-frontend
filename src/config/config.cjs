@@ -1,9 +1,16 @@
 module.exports = {
   development: {
-    username: "cristian",
-    password: "cristian",
-    database: "ciencia_contri",
-    host: "172.16.56.79",
+    username: "ont",
+    password: "123456",
+    database: "xmls",
+    host: "localhost",
+    dialect: "postgres"
+  },
+  production: {
+    username: "ont",
+    password: "123456",
+    database: "xmls",
+    host: "localhost",
     dialect: "postgres"
   }
 };

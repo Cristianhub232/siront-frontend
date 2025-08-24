@@ -15,13 +15,11 @@ export const createUserSchema = z.object({
  * Todos los campos son opcionales y usan el nombre de rol en lugar de role_id.
  */
 
-
 export const updateUserStatusSchema = z.object({
-  status: z.boolean({
-    error: 'El campo status debe ser booleano',
+  status: z.enum(['active', 'inactive', 'suspended'], {
+    error: 'El campo status debe ser active, inactive o suspended',
   }),
 });
-
 
 export const updateUserSchema = createUserSchema.partial();
 

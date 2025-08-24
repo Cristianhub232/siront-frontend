@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
       email: body.email,
       password_hash,
       role_id: roleObj.getDataValue('id'),
-      status: true,
+      status: 'active',
     });
 
     // Preparar respuesta sin password_hash

@@ -74,7 +74,7 @@ export default function GenerarReporteModal({
     if (codigoPresupuestario) {
       setFormData(prev => ({
         ...prev,
-        codigo_presupuestario
+        codigo_presupuestario: codigoPresupuestario
       }));
     }
   }, [codigoPresupuestario]);

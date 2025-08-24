@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
-import sequelize from "@/lib/db";
+import { authSequelize } from "@/lib/db";
 
-const Menu = sequelize.define(
+const Menu = authSequelize.define(
   "Menu",
   {
     id: {
@@ -30,6 +30,10 @@ const Menu = sequelize.define(
       type: DataTypes.UUID,
       allowNull: true,
       field: "parent_id", // 👈 campo físico en la tabla
+      references: {
+        model: "app.menus",
+        key: "id",
+      },
     },
     section: {
       type: DataTypes.ENUM("main", "secondary", "document"),
@@ -48,7 +52,7 @@ const Menu = sequelize.define(
     }
   },
   {
-    schema: "public",
+    schema: "app",
     tableName: "menus",
     timestamps: false,
   }

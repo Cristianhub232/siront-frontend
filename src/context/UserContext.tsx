@@ -54,6 +54,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const setUser = (data: UserData | null) => {
+    setUserState(data);
     if (data) {
       localStorage.setItem("user_data", JSON.stringify(data));
     } else {
@@ -62,6 +63,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const setMenus = (data: MenuStructure | null) => {
+    setMenusState(data);
     if (data) {
       localStorage.setItem("user_menus", JSON.stringify(data));
     } else {

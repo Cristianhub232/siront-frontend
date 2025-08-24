@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
-import sequelize from "@/lib/db";
+import { authSequelize } from "@/lib/db";
 
-const Role = sequelize.define(
+const Role = authSequelize.define(
   "Role",
   {
     id: {
@@ -10,19 +10,25 @@ const Role = sequelize.define(
       primaryKey: true,
     },
     name: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(50),
       unique: true,
       allowNull: false,
     },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     status: {
-      type: DataTypes.ENUM("activo", "inactivo"),
-      defaultValue: "activo",
+      type: DataTypes.ENUM("active", "inactive"),
+      defaultValue: "active",
     },
   },
   {
-    schema: "public",
+    schema: "app",
     tableName: "roles",
     timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
   }
 );
 

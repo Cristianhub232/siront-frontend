@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Role } from "@/models/index";
-
+import { Role, User } from "@/models/index";
+import { Op } from "sequelize";
 
 // GET: listar roles
 export async function GET(req: NextRequest) {
@@ -8,8 +8,38 @@ export async function GET(req: NextRequest) {
   if (!token) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
 
   try {
-    const roles = await Role.findAll({ order: [["createdAt", "DESC"]] });
-    return NextResponse.json({ roles }, { status: 200 });
+    const { searchParams } = new URL(req.url);
+    const all = searchParams.get('all') === 'true';
+
+    let whereClause = {};
+    if (!all) {
+      whereClause = { status: 'active' };
+    }
+
+    const roles = await Role.findAll({ 
+      where: whereClause,
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: 'users',
+          attributes: ['id'],
+          required: false
+        }
+      ]
+    });
+
+    // Agregar conteo de usuarios a cada rol
+    const rolesWithUserCount = roles.map(role => {
+      const roleData = role.get({ plain: true });
+      return {
+        ...roleData,
+        userCount: roleData.users?.length || 0,
+        users: undefined // Remover el array de usuarios del response
+      };
+    });
+
+    return NextResponse.json({ roles: rolesWithUserCount }, { status: 200 });
   } catch (error) {
     console.error("[GET /api/admin/roles] Error:", error);
     return NextResponse.json(
@@ -27,11 +57,19 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name } = body;
+    const { name, description, status = 'active' } = body;
 
     if (!name || typeof name !== "string" || name.trim().length < 3) {
       return NextResponse.json(
         { error: "Nombre de rol inválido" },
+        { status: 400 }
+      );
+    }
+
+    // Validar estado
+    if (status && !['active', 'inactive'].includes(status)) {
+      return NextResponse.json(
+        { error: "Estado inválido" },
         { status: 400 }
       );
     }
@@ -44,7 +82,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newRole = await Role.create({ name: name.trim() });
+    const newRole = await Role.create({ 
+      name: name.trim(),
+      description: description?.trim() || null,
+      status: status
+    });
 
     return NextResponse.json(
       { message: "Rol creado exitosamente", role: newRole },

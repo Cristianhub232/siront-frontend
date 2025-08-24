@@ -25,11 +25,13 @@ import {
 
 import { NavUserProps } from "@/types/menu";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export function NavUser({ user }: NavUserProps) {
   
   const { logout } = useAuth();
   const { isMobile } = useSidebar();
+  const router = useRouter();
 
   return (
     <SidebarMenu>
@@ -75,7 +77,7 @@ export function NavUser({ user }: NavUserProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/cuenta')}>
                 <IconUserCircle />
                 Cuenta
               </DropdownMenuItem>

@@ -12,12 +12,14 @@ interface AuthContextType {
     username: string;
     password: string;
   }) => Promise<void>;
+  updateUser: (userData: any) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   logout: async () => {},
   signIn: async () => {},
+  updateUser: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -91,8 +93,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.setItem("user_data", JSON.stringify(user));
       localStorage.setItem("user_menus", JSON.stringify(menus));
 
-      // Redirigir directamente a gestión de usuarios
-      router.push("/usuarios");
+      // Redirigir al dashboard después del login exitoso
+      router.push("/dashboard");
     } catch (error: any) {
       console.error("⛔ Error en signIn:", error);
       toast.error(error?.message || "Error al iniciar sesión");
@@ -114,6 +116,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("user_menus");
   };
 
+  const updateUser = (userData: any) => {
+    setUser(userData);
+    localStorage.setItem("user_data", JSON.stringify(userData));
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -121,6 +128,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           !checking && localStorage.getItem("user_data") !== null,
         logout,
         signIn,
+        updateUser,
       }}
     >
       {children}

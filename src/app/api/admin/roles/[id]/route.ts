@@ -1,44 +1,75 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Role, User } from "@/models/index";
-import { validate as uuidValidate } from "uuid";
+import { Role } from "@/models/index";
+import { verifyToken } from "@/lib/jwtUtils";
+import { Op } from "sequelize";
 
+// PUT /api/admin/roles/[id] - Actualizar rol
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const token = req.cookies.get("auth_token")?.value;
-
-  if (!token) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-  }
-
-  const { id } = await params;
-
-  if (!id || !uuidValidate(id)) {
-    return NextResponse.json({ error: "ID inválido" }, { status: 400 });
-  }
+  if (!token) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  if (!verifyToken(token)) return NextResponse.json({ error: "Token inválido" }, { status: 403 });
 
   try {
-    const { name } = await req.json();
+    const { id: roleId } = await params;
+    const body = await req.json();
+    const { name, description, status } = body;
 
+    // Validar campos requeridos
     if (!name || typeof name !== "string" || name.trim().length < 3) {
-      return NextResponse.json({ error: "Nombre inválido" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Nombre de rol inválido" },
+        { status: 400 }
+      );
     }
 
-    const role = await Role.findByPk(id);
+    // Validar estado
+    if (status && !['active', 'inactive'].includes(status)) {
+      return NextResponse.json(
+        { error: "Estado inválido" },
+        { status: 400 }
+      );
+    }
+
+    // Buscar el rol
+    const role = await Role.findByPk(roleId);
     if (!role) {
-      return NextResponse.json({ error: "Rol no encontrado" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Rol no encontrado" },
+        { status: 404 }
+      );
     }
 
-    role.set("name", name.trim());
-    await role.save();
+    // Verificar si el nombre ya existe (excluyendo el rol actual)
+    const existingRole = await Role.findOne({ 
+      where: { 
+        name: name.trim(),
+        id: { [Op.ne]: roleId }
+      } 
+    });
+    
+    if (existingRole) {
+      return NextResponse.json(
+        { error: "Ya existe un rol con ese nombre" },
+        { status: 409 }
+      );
+    }
+
+    // Actualizar el rol
+    await role.update({
+      name: name.trim(),
+      description: description?.trim() || null,
+      status: status || (role as any).status
+    });
 
     return NextResponse.json(
-      { message: "Rol actualizado", role },
+      { message: "Rol actualizado exitosamente", role },
       { status: 200 }
     );
-  } catch (err) {
-    console.error("[PUT /api/admin/roles/:id] Error:", err);
+  } catch (error) {
+    console.error("[PUT /api/admin/roles/[id]] Error:", error);
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 }
@@ -46,45 +77,47 @@ export async function PUT(
   }
 }
 
+// DELETE /api/admin/roles/[id] - Eliminar rol
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const token = req.cookies.get("auth_token")?.value
-  if (!token) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 })
-  }
-
-  const { id } = await params
-
-  if (!uuidValidate(id)) {
-    return NextResponse.json({ error: "ID inválido" }, { status: 400 })
-  }
+  const token = req.cookies.get("auth_token")?.value;
+  if (!token) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  if (!verifyToken(token)) return NextResponse.json({ error: "Token inválido" }, { status: 403 });
 
   try {
-    const role = await Role.findByPk(id, {
-      include: [{ model: User, as: "users", attributes: ["id"] }],
-    })
+    const { id: roleId } = await params;
 
+    // Buscar el rol
+    const role = await Role.findByPk(roleId);
     if (!role) {
-      return NextResponse.json({ error: "Rol no encontrado" }, { status: 404 })
-    }
-
-    if ((role as any).users && (role as any).users.length > 0) {
       return NextResponse.json(
-        { error: "Rol asignado a usuarios" },
-        { status: 400 }
-      )
+        { error: "Rol no encontrado" },
+        { status: 404 }
+      );
     }
 
-    await Role.destroy({ where: { id } })
+    // No permitir eliminar el rol admin
+    if ((role as any).name === 'admin') {
+      return NextResponse.json(
+        { error: "No se puede eliminar el rol administrador" },
+        { status: 403 }
+      );
+    }
 
-    return new NextResponse(null, { status: 204 })
-  } catch (err) {
-    console.error("[DELETE /api/admin/roles/:id] Error:", err)
+    // Eliminar el rol
+    await role.destroy();
+
     return NextResponse.json(
-      { error: "Error eliminando rol" },
+      { message: "Rol eliminado exitosamente" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("[DELETE /api/admin/roles/[id]] Error:", error);
+    return NextResponse.json(
+      { error: "Error interno del servidor" },
       { status: 500 }
-    )
+    );
   }
 }

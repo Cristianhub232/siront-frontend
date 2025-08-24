@@ -1,5 +1,8 @@
 export interface Role {
   id: string;
   name: string;
-  status: "activo" | "inactivo";
+  description?: string;
+  status: "active" | "inactive";
+  created_at?: string;
+  updated_at?: string;
 }

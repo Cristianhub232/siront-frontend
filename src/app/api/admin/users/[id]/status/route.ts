@@ -26,7 +26,7 @@ export async function PATCH(
   }
 
   // 4️⃣ Validar el contenido con Zod
-  let data: { status: boolean };
+  let data: { status: 'active' | 'inactive' | 'suspended' };
   try {
     data = updateUserStatusSchema.parse(parsedBody);
   } catch (err: any) {
@@ -64,9 +64,11 @@ export async function PATCH(
   return NextResponse.json(
     {
       status: data.status,
-      message: data.status
+      message: data.status === 'active'
         ? "Usuario activado correctamente"
-        : "Usuario desactivado correctamente",
+        : data.status === 'inactive'
+        ? "Usuario desactivado correctamente"
+        : "Usuario suspendido correctamente",
     },
     { status: 200 }
   );

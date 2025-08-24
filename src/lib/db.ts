@@ -10,45 +10,36 @@ if (!process.env.DATABASE_URL) {
   }
 }
 
-// Conexión principal para la aplicación (localhost)
-const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) {
-  throw new Error('DATABASE_URL environment variable is not defined');
-}
-
+// Conexión principal para la aplicación
+const databaseUrl = process.env.DATABASE_URL || 'postgresql://ont:123456@localhost:5432/xmls';
 const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
   logging: false,
 });
 
-// Conexión específica para empresas petroleras (base de datos remota)
-const petrolerasDatabaseUrl = process.env.PETROLERAS_DATABASE_URL;
-if (!petrolerasDatabaseUrl) {
-  throw new Error('PETROLERAS_DATABASE_URL environment variable is not defined');
-}
+// Conexión específica para autenticación (esquema app)
+const authSequelize = new Sequelize(databaseUrl, {
+  dialect: 'postgres',
+  logging: false,
+  schema: 'app',
+  define: {
+    schema: 'app'
+  }
+});
 
+// Conexión específica para empresas petroleras (base de datos local)
+const petrolerasDatabaseUrl = process.env.PETROLERAS_DATABASE_URL || 'postgresql://ont:123456@localhost:5432/xmls';
 const petrolerasSequelize = new Sequelize(petrolerasDatabaseUrl, {
   dialect: 'postgres',
   logging: false,
 });
 
 // Conexión específica para formas (base de datos XMLS)
-const xmlsDatabaseUrl = process.env.XMLS_DATABASE_URL;
-let xmlsSequelize: Sequelize;
-
-if (!xmlsDatabaseUrl) {
-  console.warn('XMLS_DATABASE_URL environment variable is not defined. XMLS features will be disabled.');
-  // Crear una instancia dummy para evitar errores
-  xmlsSequelize = new Sequelize('sqlite::memory:', {
-    dialect: 'sqlite',
-    logging: false,
-  });
-} else {
-  xmlsSequelize = new Sequelize(xmlsDatabaseUrl, {
-    dialect: 'postgres',
-    logging: false,
-  });
-}
+const xmlsDatabaseUrl = process.env.XMLS_DATABASE_URL || 'postgresql://ont:123456@localhost:5432/xmls';
+const xmlsSequelize = new Sequelize(xmlsDatabaseUrl, {
+  dialect: 'postgres',
+  logging: false,
+});
 
 export default sequelize;
-export { petrolerasSequelize, xmlsSequelize };
+export { petrolerasSequelize, xmlsSequelize, authSequelize };

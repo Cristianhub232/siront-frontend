@@ -1,4 +1,5 @@
 import { RoleMenuPermission, Menu } from "@/models/index";
+import { QueryTypes } from "sequelize";
 
 type MenuSection = 'main' | 'secondary' | 'document';
 
@@ -110,21 +111,20 @@ export async function getMenusByRole(
       return { navMain, navSecondary, documents };
     }
 
-    // Para usuarios no admin, usar la consulta original
-    const rawMenus = await Menu.findAll({
-      include: [
-        {
-          model: RoleMenuPermission,
-          as: "permissions",
-          where: { can_view: true, role_id: role },
-          required: true,
-        },
-      ],
-      where,
-      order: [["orden", "ASC"]],
-      raw: true,
-      nest: true,
-    }) as unknown as RawMenuItem[];
+    // Para usuarios no admin, usar consulta SQL directa
+    const rawMenus = await Menu.sequelize!.query(`
+      SELECT m.id, m.key, m.label, m.icon, m.route, m.parent_id as parentId, 
+             m.orden, m.section, m.status, m.metabase_dashboard_id as metabaseID,
+             rmp.can_view, rmp.can_edit
+      FROM app.menus m
+      INNER JOIN app.role_menu_permissions rmp ON m.id = rmp.menu_id
+      INNER JOIN app.roles r ON rmp.role_id = r.id
+      WHERE r.name = :roleName AND rmp.can_view = true AND m.status = true
+      ORDER BY m.orden ASC
+    `, {
+      replacements: { roleName: role },
+      type: QueryTypes.SELECT
+    }) as RawMenuItem[];
 
     const navMain: MenuNodeRoot[] = [];
     const navSecondary: SecondaryItem[] = [];

@@ -28,10 +28,12 @@ export async function GET(req: NextRequest) {
 
     const userData = user.get({ plain: true });
     
-    // Usar el nombre del rol del token en lugar del ID del rol
-    const menus = await getMenusByRole(decoded.role);
-
+    // Extraer el rol antes de usarlo
     const { role, ...rest } = userData;
+    
+    // Usar el nombre del rol del usuario para obtener los menús
+    const roleName = typeof role === 'object' && role?.name ? role.name : role;
+    const menus = await getMenusByRole(roleName);
     const responseUser = {
       ...rest,
       role: typeof role === 'object' && role?.name ? role.name : role,

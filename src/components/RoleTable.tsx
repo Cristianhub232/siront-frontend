@@ -1,127 +1,161 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Table, TableHeader, TableRow, TableCell, TableBody } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Button } from "@/components/ui/button"
-import ConfirmDialog from "@/components/ConfirmDialog"
-import { toast } from "sonner"
-import type { Role } from "@/types/role"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Settings, Users, Edit, Trash2, Eye } from "lucide-react";
+import ConfirmDialog from "./ConfirmDialog";
 
-interface RoleTableProps {
-  roles: Role[]
-  onUpdate: (role: Role) => void
-  onDelete: (id: string) => void
+interface Role {
+  id: string;
+  name: string;
+  description?: string;
+  status: "active" | "inactive";
+  created_at?: string;
+  updated_at?: string;
+  userCount?: number;
 }
 
-export default function RoleTable({ roles, onUpdate, onDelete }: RoleTableProps) {
-  const [editing, setEditing] = useState<Record<string, string>>({})
-  const [deleteId, setDeleteId] = useState<string | null>(null)
+interface RoleTableProps {
+  roles: Role[];
+  onEditPermissions: (role: Role) => void;
+  onRoleUpdated: () => void;
+  onEditRole?: (role: Role) => void;
+}
 
-  const saveName = async (id: string) => {
-    const name = editing[id]?.trim()
-    if (!name || roles.find(r => r.id === id)?.name === name) return
-    try {
-      const res = await fetch(`/api/admin/roles/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
-      })
-      if (res.ok) {
-        onUpdate({ ...(roles.find(r => r.id === id)!), name })
-        toast.success("Rol actualizado")
-        setEditing(prev => { const c = { ...prev }; delete c[id]; return c })
-      } else {
-        const err = await res.json()
-        toast.error(err.error || "Error actualizando rol")
-      }
-    } catch {
-      toast.error("Error actualizando rol")
-    }
-  }
+export function RoleTable({ roles, onEditPermissions, onRoleUpdated, onEditRole }: RoleTableProps) {
+  const [deleteRole, setDeleteRole] = useState<Role | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const toggleStatus = async (id: string, checked: boolean) => {
-    const status = checked ? "activo" : "inactivo"
-    try {
-      const res = await fetch(`/api/admin/roles/${id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status })
-      })
-      if (res.ok) {
-        onUpdate({ ...(roles.find(r => r.id === id)!), status })
-        toast.success("Estado actualizado")
-      } else {
-        const err = await res.json()
-        toast.error(err.error || "Error actualizando estado")
-      }
-    } catch {
-      toast.error("Error actualizando estado")
-    }
-  }
+  const handleDeleteRole = async () => {
+    if (!deleteRole) return;
 
-  const handleDelete = async () => {
-    if (!deleteId) return
     try {
-      const res = await fetch(`/api/admin/roles/${deleteId}`, { method: "DELETE" })
-      if (res.status === 204) {
-        onDelete(deleteId)
-        toast.success("Rol eliminado")
+      setLoading(true);
+      const response = await fetch(`/api/admin/roles/${deleteRole.id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        onRoleUpdated();
+        setDeleteRole(null);
       } else {
-        const err = await res.json()
-        toast.error(err.error || "No se pudo eliminar el rol")
+        console.error('Error eliminando rol');
       }
-    } catch {
-      toast.error("Error eliminando rol")
+    } catch (error) {
+      console.error('Error eliminando rol:', error);
     } finally {
-      setDeleteId(null)
+      setLoading(false);
     }
-  }
+  };
+
+  const getStatusBadge = (status: string) => {
+    return status === 'active' ? (
+      <Badge variant="default" className="bg-green-100 text-green-800">
+        Activo
+      </Badge>
+    ) : (
+      <Badge variant="secondary" className="bg-gray-100 text-gray-800">
+        Inactivo
+      </Badge>
+    );
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
 
   return (
     <>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableCell>Nombre</TableCell>
-            <TableCell>Activo</TableCell>
-            <TableCell>Acciones</TableCell>
+            <TableHead>Nombre</TableHead>
+            <TableHead>Descripción</TableHead>
+            <TableHead>Estado</TableHead>
+            <TableHead>Usuarios</TableHead>
+            <TableHead>Creado</TableHead>
+            <TableHead>Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {roles.map(role => (
+          {roles.map((role) => (
             <TableRow key={role.id}>
-              <TableCell>
-                <Input
-                  value={editing[role.id] ?? role.name}
-                  onChange={e => setEditing(prev => ({ ...prev, [role.id]: e.target.value }))}
-                  onBlur={() => saveName(role.id)}
-                />
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                  <Settings className="h-4 w-4 text-blue-600" />
+                  {role.name}
+                </div>
+              </TableCell>
+              <TableCell className="text-gray-600">
+                {role.description || 'Sin descripción'}
               </TableCell>
               <TableCell>
-                <Checkbox
-                  checked={role.status === "activo"}
-                  onCheckedChange={checked => toggleStatus(role.id, !!checked)}
-                />
+                {getStatusBadge(role.status)}
               </TableCell>
               <TableCell>
-                <Button size="sm" variant="destructive" onClick={() => setDeleteId(role.id)}>
-                  Eliminar
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Users className="h-4 w-4 text-gray-500" />
+                  <span>{role.userCount || 0}</span>
+                </div>
+              </TableCell>
+              <TableCell className="text-gray-600">
+                {formatDate(role.created_at)}
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onEditPermissions(role)}
+                    className="flex items-center gap-1"
+                  >
+                    <Eye className="h-3 w-3" />
+                    Permisos
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onEditRole?.(role)}
+                    className="flex items-center gap-1"
+                  >
+                    <Edit className="h-3 w-3" />
+                    Editar
+                  </Button>
+                  {role.name !== 'admin' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDeleteRole(role)}
+                      className="flex items-center gap-1 text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      Eliminar
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      {/* Modal de confirmación para eliminar */}
       <ConfirmDialog
-        open={!!deleteId}
-        onOpenChange={open => { if (!open) setDeleteId(null) }}
-        onConfirm={handleDelete}
-        title="Eliminar rol"
-        description="¿Seguro que deseas eliminar este rol?"
+        open={!!deleteRole}
+        onOpenChange={(open) => { if (!open) setDeleteRole(null) }}
+        title="Eliminar Rol"
+        description={`¿Estás seguro de que quieres eliminar el rol "${deleteRole?.name}"? Esta acción no se puede deshacer.`}
+        onConfirm={handleDeleteRole}
         confirmLabel="Eliminar"
       />
     </>
-  )
+  );
 }

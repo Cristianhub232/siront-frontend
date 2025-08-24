@@ -16,7 +16,14 @@ import {
   IconFileReport,
   IconReportMoney,
   IconAlertTriangle,
-  IconLink
+  IconLink,
+  IconHome,
+  IconShield,
+  IconFileText,
+  IconTractor,
+  IconHash,
+  IconCirclePlus,
+  IconFileSpreadsheet
 } from "@tabler/icons-react";
 
 export const ICON_MAP: Record<string, React.ElementType> = {
@@ -36,5 +43,17 @@ export const ICON_MAP: Record<string, React.ElementType> = {
   IconFileReport,
   IconReportMoney,
   IconAlertTriangle,
-  IconLink
+  IconLink,
+  // Nuevos iconos mapeados desde la base de datos
+  home: IconHome,
+  users: IconUsers,
+  shield: IconShield,
+  building: IconBuilding,
+  "file-text": IconFileText,
+  factory: IconTractor,
+  hash: IconHash,
+  "plus-circle": IconCirclePlus,
+  "file-spreadsheet": IconFileSpreadsheet,
+  "alert-triangle": IconAlertTriangle,
+  "bar-chart": IconChartBar
 };

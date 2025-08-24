@@ -24,8 +24,7 @@ import { useUserData } from "@/context/UserContext";
 import UserEditDrawer from "@/components/UserEditDrawer";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import AddUserModal from "@/components/AddUserModal";
-import AddRoleModal from "@/components/AddRoleModal";
-import RoleTable from "@/components/RoleTable";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { Role } from "@/types/role";
 
@@ -47,7 +46,7 @@ export default function AdminUsersPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [openDelete, setOpenDelete] = useState(false);
   const [openAddUser, setOpenAddUser] = useState(false);
-  const [openAddRole, setOpenAddRole] = useState(false);
+
   
   // Filtros de búsqueda
   const [filtroUsername, setFiltroUsername] = useState("");
@@ -207,6 +206,22 @@ export default function AdminUsersPage() {
 
   return (
     <div className="p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Gestión de Usuarios</h1>
+          <p className="text-muted-foreground">
+            Administra los usuarios del sistema y asigna roles de acceso
+          </p>
+        </div>
+        <Button onClick={() => setOpenAddUser(true)} className="flex items-center gap-2">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Agregar Usuario
+        </Button>
+      </div>
+
       {/* Dashboard de Estadísticas */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card className="bg-blue-50 border-blue-200">
@@ -278,15 +293,7 @@ export default function AdminUsersPage() {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <h1 className="text-xl font-bold text-blue-900">Gestión de Usuarios</h1>
-          <div className="space-x-2">
-            <Button size="sm" onClick={() => setOpenAddUser(true)}>
-              Agregar Usuario
-            </Button>
-            <Button size="sm" variant="secondary" onClick={() => setOpenAddRole(true)}>
-              Agregar Rol
-            </Button>
-          </div>
+          <h1 className="text-xl font-bold text-blue-900">Usuarios del Sistema</h1>
         </CardHeader>
         <CardContent>
           {/* Filtros de búsqueda */}
@@ -330,7 +337,6 @@ export default function AdminUsersPage() {
             <Tabs defaultValue="users" className="w-full">
               <TabsList className="mb-4">
                 <TabsTrigger value="users">Usuarios</TabsTrigger>
-                <TabsTrigger value="roles">Roles</TabsTrigger>
               </TabsList>
               <TabsContent value="users">
                 {/* Información de resultados */}
@@ -412,9 +418,7 @@ export default function AdminUsersPage() {
                   </TableBody>
                 </Table>
               </TabsContent>
-              <TabsContent value="roles">
-                <RoleTable roles={roles} onUpdate={handleRoleUpdate} onDelete={handleRoleDelete} />
-              </TabsContent>
+
             </Tabs>
           )}
         </CardContent>
@@ -439,11 +443,7 @@ export default function AdminUsersPage() {
         roles={roles}
         onSuccess={() => fetchData(filtroUsername, filtroEmail)}
       />
-      <AddRoleModal
-        open={openAddRole}
-        onOpenChange={setOpenAddRole}
-        onSuccess={() => fetchData(filtroUsername, filtroEmail)}
-      />
+
     </div>
   );
 }
